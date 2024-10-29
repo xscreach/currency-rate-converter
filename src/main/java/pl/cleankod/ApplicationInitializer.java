@@ -19,6 +19,8 @@ import pl.cleankod.exchange.provider.CurrencyConversionNbpService;
 import pl.cleankod.exchange.provider.nbp.ExchangeRatesNbpClient;
 
 import java.util.Currency;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration
@@ -43,8 +45,17 @@ public class ApplicationInitializer {
     }
 
     @Bean
-    CurrencyConversionService currencyConversionService(ExchangeRatesNbpClient exchangeRatesNbpClient) {
-        return new CurrencyConversionNbpService(exchangeRatesNbpClient);
+    ExecutorService executorService() {
+        return Executors.newSingleThreadExecutor();
+    }
+
+    @Bean
+    CurrencyConversionService currencyConversionService(ExchangeRatesNbpClient exchangeRatesNbpClient,
+                                                        ExecutorService taskExecutor,
+                                                        Environment environment
+    ) {
+        Long maxWaitMs = environment.getRequiredProperty("provider.nbp-api.max-wait-ms", Long.class);
+        return new CurrencyConversionNbpService(exchangeRatesNbpClient, taskExecutor, maxWaitMs);
     }
 
     @Bean

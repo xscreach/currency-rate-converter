@@ -11,9 +11,10 @@ public class ExceptionHandlerAdvice {
 
     @ExceptionHandler({
             CurrencyConversionException.class,
-            IllegalArgumentException.class
+            IllegalArgumentException.class,
+            IllegalStateException.class
     })
-    protected ResponseEntity<ApiError> handleBadRequest(CurrencyConversionException ex) {
+    protected ResponseEntity<ApiError> handleBadRequest(Exception ex) {
         return ResponseEntity.badRequest().body(new ApiError(ex.getMessage()));
     }
 }
