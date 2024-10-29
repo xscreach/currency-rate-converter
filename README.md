@@ -74,3 +74,13 @@ Also, value-objects are responsible for a little more than just plain data holdi
 * Integration tests with the real NBP API.
 * Replace Spring Framework with a different one.
 * The proposed architecture is not perfect. Suggest improvements.
+  * AccountInMemoryRepository
+    * for the purpose of this example project, it's quite sufficient
+    * for real production-ready application the Account information should be stored in some always-available service (another microservice, database, CRM, etc...)
+  * NBP currency rates
+    * those should be preloaded or cached from NBP to be available without the need of calling NBP api for each request
+    * simple caching could be good approach
+    * but also replicating [NBP table](https://api.nbp.pl/api/exchangerates/tables/A/today/) in our own database with history - we will be able to provide information about conversion rates for 'done deals'
+    * both could be achieved by a 'right-after-midnight' background job
+    * or each currency rate could be asynchronously 'saved' to a cache or database with each request for not-yet-loaded currency - kind of trigger-wait-load approach
+    * in any case, the 'today' rates should be used to avoid loosing money or cheating customers
