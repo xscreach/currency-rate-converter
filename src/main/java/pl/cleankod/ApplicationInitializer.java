@@ -11,8 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import pl.cleankod.exchange.core.gateway.AccountRepository;
 import pl.cleankod.exchange.core.gateway.CurrencyConversionService;
-import pl.cleankod.exchange.core.usecase.FindAccountAndConvertCurrencyUseCase;
-import pl.cleankod.exchange.core.usecase.FindAccountUseCase;
+import pl.cleankod.exchange.core.service.AccountService;
 import pl.cleankod.exchange.entrypoint.AccountController;
 import pl.cleankod.exchange.entrypoint.ExceptionHandlerAdvice;
 import pl.cleankod.exchange.provider.AccountInMemoryRepository;
@@ -49,24 +48,17 @@ public class ApplicationInitializer {
     }
 
     @Bean
-    FindAccountUseCase findAccountUseCase(AccountRepository accountRepository) {
-        return new FindAccountUseCase(accountRepository);
-    }
-
-    @Bean
-    FindAccountAndConvertCurrencyUseCase findAccountAndConvertCurrencyUseCase(
-            AccountRepository accountRepository,
-            CurrencyConversionService currencyConversionService,
-            Environment environment
+    AccountService accountService(AccountRepository accountRepository,
+                                  CurrencyConversionService currencyConversionService,
+                                  Environment environment
     ) {
         Currency baseCurrency = Currency.getInstance(environment.getRequiredProperty("app.base-currency"));
-        return new FindAccountAndConvertCurrencyUseCase(accountRepository, currencyConversionService, baseCurrency);
+        return new AccountService(baseCurrency, accountRepository, currencyConversionService);
     }
 
     @Bean
-    AccountController accountController(FindAccountAndConvertCurrencyUseCase findAccountAndConvertCurrencyUseCase,
-                                        FindAccountUseCase findAccountUseCase) {
-        return new AccountController(findAccountAndConvertCurrencyUseCase, findAccountUseCase);
+    AccountController accountController(AccountService accountService) {
+        return new AccountController(accountService);
     }
 
     @Bean
