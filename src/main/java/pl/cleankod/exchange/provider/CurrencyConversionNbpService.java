@@ -4,9 +4,9 @@ import pl.cleankod.exchange.core.domain.Money;
 import pl.cleankod.exchange.core.gateway.CurrencyConversionService;
 import pl.cleankod.exchange.provider.nbp.ExchangeRatesNbpClient;
 import pl.cleankod.exchange.provider.nbp.model.RateWrapper;
+import pl.cleankod.util.CurrencyConverter;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Currency;
 
 public class CurrencyConversionNbpService implements CurrencyConversionService {
@@ -20,7 +20,7 @@ public class CurrencyConversionNbpService implements CurrencyConversionService {
     public Money convert(Money money, Currency targetCurrency) {
         RateWrapper rateWrapper = exchangeRatesNbpClient.fetch("A", targetCurrency.getCurrencyCode());
         BigDecimal midRate = rateWrapper.rates().get(0).mid();
-        BigDecimal calculatedRate = money.amount().divide(midRate, RoundingMode.HALF_UP);
+        BigDecimal calculatedRate = CurrencyConverter.convert(money.amount(), midRate);
         return new Money(calculatedRate, targetCurrency);
     }
 }
